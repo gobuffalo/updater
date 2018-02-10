@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/gobuffalo/updater"
+)
 
 var replace = map[string]string{
 	"github.com/markbates/pop":      "github.com/gobuffalo/pop",
@@ -9,5 +13,13 @@ var replace = map[string]string{
 }
 
 func main() {
-	fmt.Println("vim-go")
+	ic := updater.ImportConverter{
+		Data: replace,
+	}
+	if err := ic.Process(); err != nil {
+		log.Fatal(err)
+	}
+	if err := updater.DepEnsure(); err != nil {
+		log.Fatal(err)
+	}
 }
