@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"log"
 
 	"github.com/gobuffalo/updater"
@@ -21,5 +24,17 @@ func main() {
 	}
 	if err := updater.DepEnsure(); err != nil {
 		log.Fatal(err)
+	}
+	checkMain()
+}
+
+func checkMain() {
+	fmt.Println("~~~ Checking main.go ~~~")
+	b, err := ioutil.ReadFile("main.go")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if bytes.Contains(b, []byte("app.Start")) {
+		fmt.Println("[Warning]: app.Start has been removed in v0.11.0. Use app.Serve Instead.")
 	}
 }

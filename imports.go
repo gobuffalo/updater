@@ -97,8 +97,9 @@ func (c ImportConverter) rewriteFile(name string) error {
 		}
 
 		// match import path with the given replacement map
-		if path, ok := c.match(path); ok {
-			i.Path.Value = strconv.Quote(path)
+		if rpath, ok := c.match(path); ok {
+			fmt.Printf("[IMPORT] %s: %s -> %s\n", name, path, rpath)
+			i.Path.Value = strconv.Quote(rpath)
 			change = true
 		}
 	}
