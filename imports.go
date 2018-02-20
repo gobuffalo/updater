@@ -21,7 +21,7 @@ type ImportConverter struct {
 	Data map[string]string
 }
 
-func (c ImportConverter) Process() error {
+func (c ImportConverter) Process(r *Runner) error {
 	fmt.Println("~~~ Rewriting Imports ~~~")
 	err := filepath.Walk(".", func(p string, info os.FileInfo, err error) error {
 		for _, n := range []string{"vendor", "node_modules", ".git"} {
@@ -44,21 +44,14 @@ func (c ImportConverter) Process() error {
 		return errors.WithStack(err)
 	}
 
-	if _, err := os.Stat("Gopkg.toml"); err == nil {
+	if r.App.WithDep {
 		b, err := ioutil.ReadFile("Gopkg.toml")
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		warn := []string{}
 		for k := range c.Data {
 			if bytes.Contains(b, []byte(k)) {
-				warn = append(warn, k)
-			}
-		}
-		if len(warn) > 0 {
-			fmt.Println("[WARNING] Your Gopkg.toml contains the following imports that need to be changed MANUALLY:")
-			for _, n := range warn {
-				fmt.Printf("\t%s -> %s\n", n, c.Data[n])
+				r.Warnings = append(r.Warnings, fmt.Sprintf("Your Gopkg.toml contains the following import that need to be changed MANUALLY: %s", k))
 			}
 		}
 	}
